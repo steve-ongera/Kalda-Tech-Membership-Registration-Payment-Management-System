@@ -1,0 +1,1187 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Kalda-Tech Systems - Admin{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'images/kalda_logo.png' %}">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #6366F1;
+            --primary-hover: #4F46E5;
+            --primary-light: #818CF8;
+            --secondary-color: #EC4899;
+            --sidebar-bg: #0F172A;
+            --sidebar-hover: #1E293B;
+            --main-bg: #F1F5F9;
+            --card-bg: #FFFFFF;
+            --text-primary: #0F172A;
+            --text-secondary: #64748B;
+            --border-color: #E2E8F0;
+            --success-color: #10B981;
+            --danger-color: #EF4444;
+            --warning-color: #F59E0B;
+            --info-color: #3B82F6;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--main-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 280px;
+            background: linear-gradient(180deg, var(--sidebar-bg) 0%, #1E293B 100%);
+            padding: 0;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            padding: 24px 20px;
+            background: rgba(99, 102, 241, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .logo {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 14px;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .logo i {
+            font-size: 24px;
+            color: white;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-text-main {
+            color: white;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-text-sub {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .menu-section {
+            margin-bottom: 20px;
+            padding: 0 12px;
+        }
+
+        .menu-title {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: 12px 12px 8px;
+            margin-bottom: 4px;
+        }
+
+        .menu-item {
+            padding: 12px 16px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            border-radius: 10px;
+            margin-bottom: 4px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .menu-item:hover {
+            background: var(--sidebar-hover);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .menu-item.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .menu-item i {
+            width: 22px;
+            margin-right: 14px;
+            font-size: 17px;
+        }
+
+        .menu-item .badge {
+            margin-left: auto;
+            background: linear-gradient(135deg, var(--secondary-color), #F472B6);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .menu-item .arrow {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+            font-size: 12px;
+        }
+
+        .menu-item.has-submenu.open .arrow {
+            transform: rotate(90deg);
+        }
+
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin: 4px 0 8px 12px;
+        }
+
+        .submenu.open {
+            max-height: 600px;
+            padding: 8px 0;
+        }
+
+        .submenu-item {
+            padding: 10px 20px 10px 48px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            border-radius: 6px;
+            margin: 0 8px;
+        }
+
+        .submenu-item:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+        }
+
+        .submenu-item.active {
+            background: rgba(99, 102, 241, 0.3);
+            color: white;
+            border-left: 3px solid var(--primary-light);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+            min-height: 100vh;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        /* Header */
+        .header {
+            background: var(--card-bg);
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .menu-toggle {
+            background: var(--main-bg);
+            border: none;
+            font-size: 20px;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 10px 12px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-icon i {
+            font-size: 20px;
+            color: white;
+        }
+
+        .brand-text-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-text {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            line-height: 1.2;
+        }
+
+        .brand-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: var(--main-bg);
+        }
+
+        .header-icon:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .header-icon:hover i {
+            color: white;
+        }
+
+        .header-icon i {
+            font-size: 18px;
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(135deg, var(--danger-color), #F87171);
+            border-radius: 50%;
+            border: 2px solid var(--card-bg);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 6px 12px 6px 6px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            background: var(--main-bg);
+        }
+
+        .user-profile:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        }
+
+        .user-profile:hover .user-name,
+        .user-profile:hover .user-role,
+        .user-profile:hover i {
+            color: white;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-light);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
+
+        /* User Profile Dropdown */
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            min-width: 240px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1001;
+            border: 1px solid var(--border-color);
+        }
+
+        .user-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .user-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            background: var(--card-bg);
+            border-left: 1px solid var(--border-color);
+            border-top: 1px solid var(--border-color);
+            transform: rotate(45deg);
+        }
+
+        .dropdown-header {
+            padding: 18px;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(236, 72, 153, 0.05));
+        }
+
+        .dropdown-user-name {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .dropdown-user-email {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .dropdown-menu {
+            padding: 10px;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .dropdown-item:hover {
+            background: var(--main-bg);
+            transform: translateX(4px);
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 8px 0;
+        }
+
+        .dropdown-item.logout {
+            color: var(--danger-color);
+        }
+
+        .dropdown-item.logout i {
+            color: var(--danger-color);
+        }
+
+        .dropdown-item.logout:hover {
+            background-color: #FEF2F2;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 30px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            align-items: center;
+        }
+
+        .breadcrumb a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary-color);
+        }
+
+        .breadcrumb i {
+            font-size: 10px;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            line-height: 1.5;
+            color: #1E293B;
+            text-align: center;
+            text-decoration: none;
+            vertical-align: middle;
+            cursor: pointer;
+            user-select: none;
+            background-color: transparent;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary {
+            color: #ffffff;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-hover), var(--primary-color));
+            color: #ffffff;
+        }
+
+        .btn-success {
+            color: #ffffff;
+            background: linear-gradient(135deg, var(--success-color), #34D399);
+        }
+
+        .btn-danger {
+            color: #ffffff;
+            background: linear-gradient(135deg, var(--danger-color), #F87171);
+        }
+
+        .btn-warning {
+            color: #ffffff;
+            background: linear-gradient(135deg, var(--warning-color), #FBBF24);
+        }
+
+        /* Alert Messages */
+        .alert {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            margin: 10px 0;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
+            animation: slideIn 0.4s ease forwards;
+            transition: all 0.3s ease;
+        }
+
+        .alert i {
+            font-size: 18px;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+            border-left: 4px solid var(--success-color);
+            color: #065F46;
+        }
+
+        .alert-error, .alert-danger {
+            background: linear-gradient(135deg, #FEF2F2, #FEE2E2);
+            border-left: 4px solid var(--danger-color);
+            color: #7F1D1D;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
+            border-left: 4px solid var(--warning-color);
+            color: #78350F;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+            border-left: 4px solid var(--info-color);
+            color: #1E3A8A;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 24px;
+            margin-top: 40px;
+            font-size: 14px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Mobile Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .brand-text {
+                font-size: 1rem;
+            }
+            
+            .brand-subtitle {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                padding: 15px 20px;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+
+            .user-info {
+                display: none;
+            }
+
+            .brand-text-container {
+                display: none;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+
+        /* Scrollbar Styling */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div class="logo-text">
+                <span class="logo-text-main">Kalda-Tech</span>
+                <span class="logo-text-sub">Management System</span>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-title">Main</div>
+            <a href="{% url 'admin_dashboard' %}" class="menu-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-title">Membership Management</div>
+            
+            <a href="{% url 'member_list' %}" class="menu-item">
+                <i class="fas fa-users"></i>
+                <span>All Members</span>
+            </a>
+
+            <a href="#" class="menu-item">
+                <i class="fas fa-user-clock"></i>
+                <span>Pending Approvals</span>
+                <span class="badge">{{ pending_members|default:0 }}</span>
+            </a>
+
+            <a href="#" class="menu-item">
+                <i class="fas fa-user-check"></i>
+                <span>Active Members</span>
+            </a>
+
+            <a href="#" class="menu-item">
+                <i class="fas fa-user-times"></i>
+                <span>Expired Members</span>
+            </a>
+
+            <div class="menu-item has-submenu" data-submenu="categories">
+                <i class="fas fa-tags"></i>
+                <span>Categories</span>
+                <i class="fas fa-chevron-right arrow"></i>
+            </div>
+            <div class="submenu" id="submenu-categories">
+                <a href="#" class="submenu-item">View Categories</a>
+                <a href="#" class="submenu-item">Add Category</a>
+                <a href="#" class="submenu-item">Manage Pricing</a>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-title">Financial Management</div>
+            
+            <a href="{% url 'payment_list' %}" class="menu-item">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Payments</span>
+            </a>
+
+            <a href="#" class="menu-item">
+                <i class="fas fa-receipt"></i>
+                <span>Receipts</span>
+            </a>
+
+            <div class="menu-item has-submenu" data-submenu="mpesa">
+                <i class="fas fa-mobile-alt"></i>
+                <span>M-Pesa Integration</span>
+                <i class="fas fa-chevron-right arrow"></i>
+            </div>
+            <div class="submenu" id="submenu-mpesa">
+                <a href="#" class="submenu-item">Transactions</a>
+                <a href="#" class="submenu-item">Reconciliation</a>
+                <a href="#" class="submenu-item">Settings</a>
+            </div>
+
+            <a href="#" class="menu-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>Financial Reports</span>
+            </a>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-title">Renewals & Certificates</div>
+            
+            <a href="#" class="menu-item">
+                <i class="fas fa-sync-alt"></i>
+                <span>Renewals</span>
+            </a>
+
+            <a href="#" class="menu-item">
+                <i class="fas fa-certificate"></i>
+                <span>Certificates</span>
+            </a>
+
+            <a href="#" class="menu-item">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Expiring Soon</span>
+            </a>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-title">Geography</div>
+            
+            <div class="menu-item has-submenu" data-submenu="geography">
+                <i class="fas fa-globe-africa"></i>
+                <span>Locations</span>
+                <i class="fas fa-chevron-right arrow"></i>
+            </div>
+            <div class="submenu" id="submenu-geography">
+                <a href="#" class="submenu-item">Countries</a>
+                <a href="#" class="submenu-item">Regions</a>
+                <a href="#" class="submenu-item">Distribution Map</a>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-title">Communications</div>
+            
+            <a href="#" class="menu-item">
+                <i class="fas fa-bell"></i>
+                <span>Notifications</span>
+            </a>
+
+            <a href="#" class="menu-item">
+                <i class="fas fa-envelope"></i>
+                <span>Email Templates</span>
+            </a>
+
+            <a href="#" class="menu-item">
+                <i class="fas fa-sms"></i>
+                <span>SMS Messages</span>
+            </a>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-title">System Administration</div>
+            
+            <div class="menu-item has-submenu" data-submenu="users">
+                <i class="fas fa-user-shield"></i>
+                <span>User Management</span>
+                <i class="fas fa-chevron-right arrow"></i>
+            </div>
+            <div class="submenu" id="submenu-users">
+                <a href="#" class="submenu-item">All Users</a>
+                <a href="#" class="submenu-item">Administrators</a>
+                <a href="#" class="submenu-item">Staff Members</a>
+                <a href="#" class="submenu-item">Add New User</a>
+            </div>
+
+            <a href="#" class="menu-item">
+                <i class="fas fa-history"></i>
+                <span>Audit Trail</span>
+            </a>
+
+            <a href="{% url 'system_settings' %}" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>System Settings</span>
+            </a>
+
+            <a href="#" class="menu-item">
+                <i class="fas fa-file-alt"></i>
+                <span>Reports</span>
+            </a>
+
+            <a href="#" class="menu-item">
+                <i class="fas fa-download"></i>
+                <span>Data Export</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="brand-info">
+                    <div class="brand-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="brand-text-container">
+                        <span class="brand-text">Kalda-Tech Systems</span>
+                        <span class="brand-subtitle">Membership Management Platform</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div class="header-icon notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge"></span>
+                </div>
+                <div class="user-profile" id="userProfile">
+                    <img src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}&background=2563EB&color=fff" alt="User" class="user-avatar">
+                    <div class="user-info">
+                        <span class="user-name">{{ user.get_full_name }}</span>
+                        <span class="user-role">{{ user.roles.first.get_name_display|default:"Administrator" }}</span>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                    
+                    <!-- User Dropdown -->
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="dropdown-header">
+                            <div class="dropdown-user-name">{{ user.get_full_name }}</div>
+                            <div class="dropdown-user-email">{{ user.email }}</div>
+                        </div>
+                        <div class="dropdown-menu">
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-user"></i>
+                                <span>Profile Settings</span>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-cog"></i>
+                                <span>Preferences</span>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-question-circle"></i>
+                                <span>Help & Support</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="{% url 'logout' %}" class="dropdown-item logout">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Django Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle"></i>
+                        {% elif message.tags == 'error' or message.tags == 'danger' %}
+                            <i class="fas fa-exclamation-circle"></i>
+                        {% elif message.tags == 'warning' %}
+                            <i class="fas fa-exclamation-triangle"></i>
+                        {% elif message.tags == 'info' %}
+                            <i class="fas fa-info-circle"></i>
+                        {% endif %}
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}
+            {% endblock %}
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="mb-0">&copy; 2025 Wajir County Government - Health Information System</p>
+        </footer>
+    </div>
+
+    <script>
+        // Toggle Sidebar
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        menuToggle.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            }
+        });
+
+        // Close sidebar when clicking overlay
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        });
+
+        // Submenu Toggle
+        const menuItems = document.querySelectorAll('.menu-item.has-submenu');
+        
+        menuItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const submenuId = item.getAttribute('data-submenu');
+                const submenu = document.getElementById(`submenu-${submenuId}`);
+                
+                // Close other submenus
+                document.querySelectorAll('.submenu').forEach(sub => {
+                    if (sub !== submenu) {
+                        sub.classList.remove('open');
+                    }
+                });
+                
+                document.querySelectorAll('.menu-item.has-submenu').forEach(mi => {
+                    if (mi !== item) {
+                        mi.classList.remove('open');
+                    }
+                });
+                
+                // Toggle current submenu
+                item.classList.toggle('open');
+                submenu.classList.toggle('open');
+            });
+        });
+
+        // Active menu item highlighting
+        const allMenuItems = document.querySelectorAll('.menu-item:not(.has-submenu), .submenu-item');
+        const currentPath = window.location.pathname;
+        
+        allMenuItems.forEach(item => {
+            const href = item.getAttribute('href');
+            if (href && href !== '#' && currentPath.includes(href)) {
+                item.classList.add('active');
+                
+                // If it's a submenu item, open its parent
+                if (item.classList.contains('submenu-item')) {
+                    const submenu = item.closest('.submenu');
+                    if (submenu) {
+                        submenu.classList.add('open');
+                        const submenuId = submenu.id.replace('submenu-', '');
+                        const parentItem = document.querySelector(`[data-submenu="${submenuId}"]`);
+                        if (parentItem) {
+                            parentItem.classList.add('open');
+                        }
+                    }
+                }
+            }
+            
+            // Click event for manual activation
+            item.addEventListener('click', (e) => {
+                if (!item.classList.contains('has-submenu')) {
+                    allMenuItems.forEach(mi => mi.classList.remove('active'));
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // User Profile Dropdown Toggle
+        const userProfile = document.getElementById('userProfile');
+        const userDropdown = document.getElementById('userDropdown');
+
+        userProfile.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userDropdown.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!userProfile.contains(e.target)) {
+                userDropdown.classList.remove('active');
+            }
+        });
+
+        // Prevent dropdown from closing when clicking inside it
+        userDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+            }
+        });
+
+        // Close dropdown with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                userDropdown.classList.remove('active');
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                }
+            }
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', () => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 300);
+                }, 5000);
+            });
+        });
+    </script>
+ {% block extra_js %}{% endblock %}
+</body>
+</html>
